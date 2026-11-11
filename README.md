@@ -1,4 +1,4 @@
-# GeospatialFall2026GuestLecture
+# Guest Lecture: Introduction to GIS, Census Data, and Map Making Using R
 Repo to contain course-related materials for guest lecture.
 A copy of all lecture materials for the Nov 16 lecture will be placed here.
 
