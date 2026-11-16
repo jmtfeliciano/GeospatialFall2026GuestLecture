@@ -1,0 +1,336 @@
+---
+title: "Guest Lecture Scripts and Practice"
+format: 
+  html:
+    self-contained: true
+editor: visual
+---
+
+## Note:
+
+All other related materials are found in <https://github.com/jmtfeliciano/GeospatialFall2026GuestLecture/tree/main>
+
+## Forward geocoding
+
+You can use the tidygeocoder package in R.
+
+The code below is an example of forward geocoding (addresses ⮕ coordinates). By default, geocode() uses Nominatim (a geocoding software package) to perform the task.
+
+```{r}
+# run via Console if not installed before: 
+# install.packages("tidygeocoder")
+library(tidygeocoder)
+addresses_df <- data.frame(address = c("60 College St, New Haven, CT"))                              
+geocode(addresses_df, address = address)
+```
+
+## Forward geocoding
+
+It can process multiple addresses:
+
+```{r}
+# run if not installed before: install.packages("tidygeocoder")
+library(tidygeocoder)
+addresses_df_v2 <- data.frame(address = c("1600 Pennsylvania Avenue, Washington, DC",
+                                       "1313 Disneyland Dr, Anaheim, CA"))                              
+geocode(addresses_df_v2, address = address)
+
+```
+
+## Forward geocoding
+
+If you are interested in determining the geographies (e.g., county, tract information), we need to use the census method which leverages the Census API.
+
+```{r}
+# run if not installed before: install.packages("tidygeocoder")
+library(tidygeocoder)
+addresses_df_v3 <- data.frame(address = c("26 Plympton St, Cambridge, MA"))                              
+results_df <- geocode(addresses_df_v3, address = address, method = "census", 
+        full_results = TRUE, api_options = list(census_return_type = 'geographies'))
+
+# Script you need to run to see county information
+results_df$geographies.Counties
+
+# Script you need to run to see county information
+results_df$`geographies.Census Tracts`
+```
+
+## Reverse geocoding
+
+```{r}
+reverse_geo(lat = "41.30374", long = "-72.93216")
+```
+
+## censusapi package: pulling data into R
+
+Suppose we are interesting in county-level population data. According to the ACS 2022 table shell, the variable we need to use is: B01001_001E.
+
+We can use the censusapi package to get census data directly into R.
+
+```{r}
+# run this if not installed: install.packages("censusapi")
+library(censusapi)
+Sys.setenv(CENSUS_KEY="") # put your API key here
+
+population_data <- getCensus(
+  name = "acs/acs5", # requests ACS5 data
+  vintage = 2022, # requests 2022 data
+  vars = c("B01001_001E"), #requested variable
+  region = "county:*") #requested geography
+
+head(population_data)
+
+```
+
+## Examples of Other Important censusapi calls
+
+An example of asking for multiple variables:
+
+```{r}
+data1 <- getCensus(name = "acs/acs5", vintage = 2019, 
+                   vars = c("B28002_001E", "B28002_002E"), 
+                   region = "county:*")
+
+head(data1)
+```
+
+An example of asking for Connecticut-only county-level data (Note: CT's FIPS code is 09).
+
+```{r}
+data2 <- getCensus(name = "acs/acs5", vintage = 2019, 
+                   vars = c("B28002_001E", "B28002_002E"), 
+                  region = "county:*", regionin = "state:09")
+head(data2)
+```
+
+An example of asking for Missouri-only tract-level data (Note: MO's FIPS code is 29).
+
+```{r}
+data3 <- getCensus(name = "acs/acs5", vintage = 2019, 
+                   vars = c("B28002_001E", "B28002_002E"), 
+                   region = "tract:*", regionin = "state:29")
+head(data3)
+```
+
+## Creating SVI Map for MO
+
+Step 1: Retrieve shapefile needed.
+
+```{r}
+library(tigris) 
+mo_shape_file <- tracts(state = "MO", year = 2019)
+# not required but nice to visualize data
+head(mo_shape_file)
+```
+
+Step 2: Load MO SVI data into R.
+
+```{r}
+library(tidyverse) 
+mo_svi_data <- read_csv("https://raw.githubusercontent.com/jmtfeliciano/teachingdata/refs/heads/main/MissouriSVI2019.csv") |>
+  mutate(GEOID = as.character(FIPS)) # rename FIPS into GEOID
+
+head(mo_svi_data)
+```
+
+Step 3: Merge SVI data into shapefile.
+
+```{r}
+mo_shape_file_v2 <- left_join(mo_shape_file, mo_svi_data)
+
+glimpse(mo_shape_file_v2)
+```
+
+Step 4: Plot map (Note: RPL_THEMES is the SVI variable).
+
+```{r}
+# RPL_THEMES IS THE VARIABLE WE WANT TO RENDER
+ggplot(data = mo_shape_file_v2, 
+       aes(fill = RPL_THEMES)) +
+  geom_sf()
+```
+
+## Generating Map
+
+```{r}
+ggplot(data = mo_shape_file_v2, 
+       aes(fill = RPL_THEMES)) +
+  geom_sf()
+```
+
+## Further Customizations
+
+```{r}
+# Added theme_void() 
+# to remove grid and grey background
+ggplot(data = mo_shape_file_v2, 
+       aes(fill = RPL_THEMES)) +
+  geom_sf() +
+  theme_void()
+
+```
+
+## Further Customizations Part 2
+
+```{r}
+# Further customizes labels and color gradient
+ggplot(data = mo_shape_file_v2, 
+       aes(fill = RPL_THEMES)) +
+  geom_sf() +
+  theme_void() +
+  scale_fill_gradient(low="white", 
+                      high="darkblue") +
+  labs(fill='MO-Specific SVI')
+```
+
+**Step 2:** Eventually create a virginia 2023 data frame (call it virginia_cases_df) from covid_cases_df that we will eventually left_join into the shapefile
+
+```{r}
+# covid_cases_df is CDC data for the entire country
+covid_cases_df <- read_csv("https://raw.githubusercontent.com/jmtfeliciano/teachingdata/refs/heads/main/cdc_covid_county_data_20230303.csv") 
+head(covid_cases_df)
+
+# Our code here below
+
+```
+
+**Step 3: left join data we want to render into a map into the shapefile to create desired shapefile**
+
+```{r}
+# Our code here below
+
+```
+
+**Step 4: Render the VA map! Fill data from covid_cases_per_100k variable**
+
+Use desired shapefile to render map
+
+```{r}
+# Our code here below
+
+```
+
+## tidycensus package and census data
+
+tidycensus is an R package that allows users to interface with a select number of the US Census Bureau’s data APIs and return data frames.
+
+If you want to map ACS-related data, the tidycensus package is the most convenient way to go. One of the advantages of using tidycensus is it has the option to return not just the requested variable(s) but also the corresponding shapefile needed. If your goal is to visualize Census data via a map, tidycensus is the package to use.
+
+Before going further, load the tidycensus package:
+
+```{r}
+# run install.packages("tidycensus") if not installed
+library(tidycensus)
+```
+
+## tidycensus package and census data.
+
+The script below uses `load_variables()` to list the available variables within the 2023 ACS5 data--this is a table shell but loaded into R as a data frame. Remember, when someone refers to '2023 ACS 5 data', the estimates actually use data for 2019-2023).
+
+```{r}
+variable_list_2022 <- load_variables(2022, "acs5", cache = TRUE)
+nrow(variable_list_2022)
+```
+
+```{r}
+head(variable_list_2022)
+
+```
+
+## tidycensus package and census data
+
+Advanced recipe: using basic text mining skills in R to find tables related to medicare.
+
+```{r}
+variable_list_2022 |>
+  filter(str_detect(concept, regex("medicare", ignore_case = TRUE))) |>
+  relocate(concept) # relocate() moves concept into the first column
+```
+
+## tidycensus package
+
+Task: Suppose we want to map the median % of household income spent on rent for each state using variable B25071_001.
+
+The key part here is: Make sure geometry = TRUE as the default is FALSE. By setting geometry as TRUE, you are instructing get_acs() to return the final data as an SF object (shapefile) that is ready for map rendering via ggplot2. shift_geo = TRUE is also important as it will compress the distance between the contiguous United States with Alaska, Hawaii, and Puerto Rico.
+
+NOTE: when we looked at the table shells, we added 'E' at the end of the variable name when using the censusapi package. For tidycensus, it is not required.
+
+```{r}
+library(tidycensus)
+census_api_key("YOUR CENSUS API KEY HERE")
+shapefile_with_data <- get_acs(
+  geography = "state",
+  variables = "B25071_001",
+  year = 2019,
+  survey = "acs5",
+  geometry = TRUE,
+  shift_geo = TRUE
+)
+```
+
+## Rendering the map
+
+```{r}
+ggplot(data = shapefile_with_data,
+       aes(fill = estimate)) + 
+  geom_sf() +
+  theme_void() +
+  labs(fill='Median Gross Rent as a % of Household Income') +
+  scale_fill_gradient(low="#1fa187", 
+                      high="#440154") +
+  theme(legend.position="bottom")
+
+```
+
+## Rendering the map: Example 2 (Full Template)
+
+```{r}
+library(tidycensus)
+library(tidyverse)
+census_api_key("YOUR CENSUS API KEY HERE")
+ct_shapefile_with_data <- get_acs(
+  geography = "county",
+  state = "CT",
+  variables = "B25071_001",
+  year = 2019,
+  survey = "acs5",
+  geometry = TRUE 
+  # shift_geo is not needed if you're not mapping entire US
+) 
+ggplot(data = ct_shapefile_with_data,
+       aes(fill = estimate)) + 
+  geom_sf() +
+  theme_void() +
+  labs(fill='Median Gross Rent as a % of Household Income') +
+  scale_fill_gradient(low="white", 
+                      high="black")
+```
+
+## Other functions from tidycensus
+
+`get_estimates()` can give you detailed information about population characteristics. In your own time, try changing the value of `product` to the following: "components", "population", or characteristics".
+
+```{r}
+get_estimates(geography = "state", product = "components", vintage = 2023)
+```
+
+## Other functions from tidycensus
+
+`get_flows()` provides detailed migration flow data (if available).
+
+```{r}
+get_flows(
+  geography = "county",
+  state = "NY",
+  county = "New York",
+  year = 2019
+)
+```
+
+## Post-class exercise ideas
+
+Use tidycensus to create other maps.
+
+Use the tigris package with outside data you want to create a map for, and create a map of your own choosing!
+
+If you want a comprehensive practice with a lot of problems to work on, work on the `PostClassPractice.qmd` file. It is probably a solid 1-2 hour of work that will eventually ask you to create multiple maps! If you work on the problems and you get stuck, email me at `jfeliciano@american.edu` and I'd be happy to assist you!
