@@ -2,4 +2,4 @@
 Repo to contain course-related materials for guest lecture.
 A copy of all lecture materials for the Nov 16 lecture will be placed here.
 
-Once the lecture materials have been finalized, a link to the guest lecture presentation materials will be linked here: [place holder].
+Once the lecture materials have been finalized, a link to the guest lecture presentation materials will be linked here: https://jmtfeliciano.github.io/IntroGISGuestLectureFall2026.html
