@@ -1,0 +1,53 @@
+State,GEOID,deaths_per_100000
+District of Columbia,11,24
+Mississippi,28,23.4
+Oklahoma,40,22.4
+Louisiana,22,22.1
+Delaware,10,22
+Nevada,32,21.7
+Tennessee,47,21.7
+Kentucky,21,21.4
+South Carolina,45,21.3
+West Virginia,54,21.1
+Georgia,13,20.7
+Alabama,01,20.4
+Indiana,18,20.3
+Michigan,26,20.3
+Illinois,17,20.2
+Virginia,51,20.2
+Utah,49,20.2
+Ohio,39,20.2
+Maryland,24,20
+Missouri,29,20
+Wyoming,56,19.9
+North Carolina,37,19.9
+Kansas,20,19.9
+Arkansas,05,19.8
+Texas,48,19.7
+Idaho,16,19.7
+Pennsylvania,42,19.6
+Nebraska,31,19.5
+New Mexico,35,19.3
+New Jersey,34,19.1
+Oregon,41,19.1
+Arizona,04,18.8
+California,06,18.8
+Washington,53,18.7
+Florida,12,18.6
+Colorado,08,18.6
+South Dakota,46,18.3
+Wisconsin,55,17.9
+Iowa,19,17.8
+Montana,30,17.7
+New Hampshire,33,17.6
+Minnesota,27,17.2
+New York,36,17.2
+Alaska,02,17.1
+Vermont,50,16.9
+Connecticut,09,16.8
+Maine,23,16.7
+Hawaii (8),15,16.6
+North Dakota,38,16.2
+Rhode Island,44,16.1
+Puerto Rico (8),72,15.4
+Massachusetts,25,15.2

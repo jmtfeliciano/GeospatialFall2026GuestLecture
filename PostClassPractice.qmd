@@ -1,0 +1,464 @@
+---
+title: "Hands on Exercise in Map Making and File Reading/Cleaning"
+format: 
+  html:
+    self-contained: true
+editor: visual
+---
+
+## Before we continue
+
+This exercise quarto file will read a lot of csv files that you need to read into R so it is best to be organized.
+
+Files you will need to read for this hands on practice are found in: <https://github.com/jmtfeliciano/BISGeospatialGuestLecture/tree/main/datasets>
+
+This hands on exercise has two goals: (1) to give you practice on joins to expose you to common join issues with spatial data and how to resolve them, and (2) give you practice by giving you work to create various maps at census tract, county, and state levels.
+
+## Let us revisit left_join and give you plenty of practice
+
+I previously shared the image below to visually show you how `left_join()` works. We use `left_join(data_frame1, dataframe2)` to merge data from another data frame (table) into another data frame (table). We typically want to save the joined data into a data frame in our R environment.
+
+So what you'll typically see is: `new_data_frame <- left_join(data_frame1, dataframe2)`
+
+![](https://raw.githubusercontent.com/jmtfeliciano/teachingdata/refs/heads/main/referencedimage/left_join_example.png){width="548"}
+
+There are many types of joins. But you may think of `new_data_frame <- left_join(data_frame1, dataframe2)` as supplementing data from data_frame2 into the underlying data of data_frame1 then saves the joined data into the R environment as `new_data_frame.`
+
+To learn more about joins (e.g., other joins such as inner_join), you may see a detailed lecture on joins I gave lecture from Fall 2024: <https://jmtfeliciano.github.io/DATA412Fall2024/Data412612Lecture7>
+
+**Important note:** `new_data_frame <- left_join(data_frame1, dataframe2)` only works if and only if they share a **common variable**. Moreover, the **common variable** must also be of the same type (e.g., both are chr or both are numeric/double/integer).
+
+## Preliminaries Part 1
+
+Run the script below to load the tidyverse package.
+
+```{r}
+library(tidyverse)
+```
+
+## Practice 1: left_join() 
+
+**Important Note Above Code Blow:** You don't have to know `tribble()`. Just know I am creating data frames (one named `comics_character`, the other `comics_publisher)` into the R environment below
+
+Let us run this to create `comics_character`:
+
+```{r}
+comics_character <- tibble::tribble(
+       ~name, ~alignment,  ~gender, 
+   "Magneto",      "bad",   "male",  
+     "Storm",     "good", "female", 
+  "Mystique",      "bad", "female",  
+    "Batman",     "good",   "male",   
+     "Joker",      "bad",   "male",   
+  "Catwoman",      "bad", "female",   
+   "Hellboy",     "good",   "male", 
+  )
+
+head(comics_character, 10)
+```
+
+Let us run this to create `comics_publisher`:
+
+```{r}
+comics_publisher <- tibble::tribble(
+       ~name,         ~publisher,
+   "Magneto",          "Marvel",
+     "Storm",          "Marvel",
+  "Mystique",          "Marvel",
+    "Batman",          "DC",
+     "Joker",          "DC",
+  "Catwoman",          "DC",
+   "Hellboy",          "Dark Horse Comics"
+  )
+
+head(comics_publisher, 10)
+```
+
+Using the R chunk below, create `comics_character_v2` after pulling the publisher data from `comics_publisher` into the underlying data for `comics_character.` Afterward, use `head()` to visually confirm that `comics_character_v2` is created as expected **Important note:** Before typing your code below, visually confirm from the printed data frame data above that both data frames have (a) a shared variable with the same name and (b) that variable (also called the join key) has the same variable type in both data frames.
+
+```{r}
+# Place your code below
+
+```
+
+## Practice 2: left_join() 
+
+Use the space below to load employees.csv and salaries.csv using `read_csv()` into your R environment. Name these data frames however you want as long it follows best practice. Make sure to use `head()` for both data frames so you can study the underlying data.
+
+```{r}
+# Place your code below
+
+```
+
+Next, using `left_join()` to combine salary data into the employees data. Save the resulting data frame into your R environment and you may name it however you want as long the name follows best practice. **Important note (again):** Before typing your code below, visually confirm from the printed data frame data above that both data frames have (a) a shared variable with the same name and (b) that shared variable (also called the join key) has the same variable type in both data frames.
+
+```{r}
+# Place your code below
+
+```
+
+## Join key have different names
+
+Suppose we want to `left_join()` two data frames called `data_frame1` and `data_frame2`. But the join key, let's say is social security number, differs in spelling. How do you handle this? Before answering this, let us look at the data again for `employee_ssn` and `salaries_ssn` below:
+
+```{r}
+employee_ssn <- read_csv("https://raw.githubusercontent.com/jmtfeliciano/teachingdata/refs/heads/main/employees_ssn.csv")
+
+salaries_ssn <- read_csv("https://raw.githubusercontent.com/jmtfeliciano/teachingdata/refs/heads/main/salaries_ssn.csv")
+
+
+head(employee_ssn)
+head(salaries_ssn)
+```
+
+**What error do you get when you have no common variable?** Run the script below to see the error mesage:
+
+```{r error = T}
+left_join(employee_ssn, salaries_ssn)
+```
+
+**An easy remedy:** pipe one of the `read_csv()` into `rename()` so both data frames have the same name for the appropriate key join.
+
+## Practice 3 
+
+**Modify** the code below by incorporating or piping `employee_ssn`'s `read_csv()` statement into `rename()` to rename social_security_numbe into ssn to enable the `left_join()` below:
+
+```{r error = TRUE}
+# MODIFY THE CODE BELOW AS INSTRUCTED 
+
+employee_ssn <- read_csv("https://raw.githubusercontent.com/jmtfeliciano/teachingdata/refs/heads/main/employees_ssn.csv") |>
+  rename(ssn = social_security_number)
+
+salaries_ssn <- read_csv("https://raw.githubusercontent.com/jmtfeliciano/teachingdata/refs/heads/main/salaries_ssn.csv")
+
+head(employee_ssn)
+head(salaries_ssn)
+
+employee_salary_data <- left_join(employee_ssn, salaries_ssn)
+
+head(employee_salary_data)
+
+```
+
+## Join key have different types
+
+Before proceeding, run the following script which will will import two new data frames named `employee_ssn_v2` and `salaries_ssn_v2` into your R environment. Pay close attention to the social security number column and their data types for each data frame.
+
+```{r}
+load(url("https://github.com/jmtfeliciano/teachingdata/raw/refs/heads/main/salaries_data.RData"))
+
+head(employee_ssn_v2)
+head(salaries_ssn_v2)
+```
+
+**What error do you get when you have no common variable?** Run the script below to see the error message:
+
+```{r error = T}
+left_join(employee_ssn_v2, salaries_ssn_v2)
+```
+
+**Again the issue:** social_security_number in employee_ssn_v2 is double (which is numeric) while social_security_number in salaries_ssn_v2 is character or string.
+
+**Two ways to fix this:**
+
+\(a\) Create another data frame that we will use for the merging after forcing social_security_number from employee_ssn_v2 into character type by using:
+
+`|>`
+
+`mutate(social_security_number = as.character(social_security_number))` or
+
+\(b\) Create another data frame that we will use for the merging after forcing social_security_number from salaries_ssn_v2 into numeric type by using:
+
+`|> mutate(social_security_number = as.numeric(social_security_number))`
+
+## Mini Practice Based on Above's Note
+
+Modify the code below by piping salaries_ssn_v2 into `mutate()` that will allow you to join `salaries_ssn_v2` and `employee_ssn_v2`. The goal is to make `left_join()` eventually work.
+
+```{r error = TRUE}
+# Modify the code below as instructed above.
+salaries_corrected <- salaries_ssn_v2 
+
+joined_data <- left_join(employee_ssn_v2, salaries_corrected)
+head(joined_data)
+```
+
+## **Map making recipe in Guest Lecture**
+
+1.  We need a **shapefile file** which is a digital format for storing geographic location and associated attribute information (e.g., points, lines, or polygons). Think of boundaries, shapes, geometric information to delineate locations and boundaries. We will use the **tigris package** to get the shapefiles directly from the US Census Bureau, so we don't have to work and manually load actual shapefiles (.shp) into R. Shapefiles loaded into R from tigris are both sf (simple feature which is geospatial data in R) and data frames.
+
+2.  We need data to map we are interested in. For example, use `read_csv()` to read data you want to plot.
+
+3.  Merge data (e.g., SVI data) to the shapefile (which is also a data frame) via `left_join()`.
+
+    **Additional Note about the shapefile:** The join key for the shapefile from the tigris package will always be GEOID of character (or string) type. If there is a mismatch on the join key (i.e., different spelling for join key, join key having different type), pipe the shapefile or `read_csv()` into (a) `rename()` or (b) `mutate()` with either as.character() or as.numeric(). If you are loading csv files into R, GEOID or FIPS will almost always be read as a numeric type into R, so either (i) convert GEOID from the shapefile into numeric type or (ii) convert GEOID from the file you read into character type.
+
+4.  Leverage ggplot2 package to render the map by using `geom_sf()`.
+
+## Preliminaries Part 2
+
+Run the script below to load the tigris package:
+
+```{r}
+library(tigris)
+```
+
+## Map 1: census tract data for a particular state
+
+Our goal for our first map is to create a map for the 2019 social vulnerability for MO.
+
+**Step 1 of Map 1:** use `tracts()` to get tract-level shapefile for the state of MO for 2019.
+
+```{r}
+dc_tract_shp <- tracts(year = 2019, state = "MO") 
+
+# important note: shapefile R objects don't show you variable/column data type via head() so you must use glimpse() for this
+glimpse(dc_tract_shp)
+```
+
+**Step 2 of Map 1:** read data you want to load into R. We eventually want to plot the values of `RPL_THEMES`**.**
+
+```{r}
+mo_svi_data <- read_csv("https://raw.githubusercontent.com/jmtfeliciano/teachingdata/refs/heads/main/MissouriSVI2019.csv")
+
+head(mo_svi_data)
+```
+
+**Step 3 of Map 1:** use left_join() to add data you loaded in R into the shapefile. Modify dc_tract_shp and mo_svi_data to enable join. Note: In this example, we piped mo_svi_data into `rename(GEOID = FIPS)` because the join key in the shapefile is GEOID, so we renamed FIPS into GEOID within the mo_svi_data data for the to enable the join.
+
+```{r}
+# converts GEOID in the shapefile into numeric type instead of character
+dc_tract_shp_corrected <- dc_tract_shp |>
+  mutate(GEOID = as.numeric(GEOID))
+
+# renames FIPS into GEOID to enable join
+mo_svi_data_corrected <- mo_svi_data |>
+  rename(GEOID = FIPS) 
+
+# perform join
+dc_tract_shp_with_data <- left_join(dc_tract_shp_corrected, mo_svi_data_corrected)
+
+# visualize data
+glimpse(dc_tract_shp_with_data)
+```
+
+**Step 4 of Map 1:** use ggplot() to plot map. Again, we want to plot the values of `RPL_THEMES`**.** Best to add `theme_bw()`, `theme_minimal()`, or `theme_void()` customization.
+
+```{r}
+ggplot(dc_tract_shp_with_data, aes(fill = RPL_THEMES)) + 
+  geom_sf() + 
+  theme_void() + 
+  scale_fill_gradient(low="white", high="blue4") +
+  labs(fill='MO-Specific SVI')
+```
+
+**A condense version of the code above where corrections are done via piping (preferred):**
+
+```{r}
+library(tigris)
+
+# Save shapefile and makes GEOID numeric instead of character type
+dc_tract_shp <- tracts(year = 2019, state = "MO") |>
+  mutate(GEOID = as.numeric(GEOID))
+
+# Loads SVI data and rename FIPS into GEOID to enable join
+mo_svi_data <- read_csv("https://raw.githubusercontent.com/jmtfeliciano/teachingdata/refs/heads/main/MissouriSVI2019.csv") |> 
+  rename(GEOID = FIPS) 
+
+# Perform actual join
+dc_tract_shp_with_data <- left_join(dc_tract_shp, mo_svi_data)
+
+ggplot(dc_tract_shp_with_data, aes(fill = RPL_THEMES)) + 
+  geom_sf() + 
+  theme_void() + 
+  scale_fill_gradient(low="white", high="blue4") +
+  labs(fill='MO-Specific SVI')
+
+```
+
+## Practice 4 (15 mins)
+
+For this class, your goal is to read `dc_household_income_2023.csv` and plot **median_income** which is the household median for income in DC for 2023. Use the R chunk below to create your map. You may additional R chunk as needed if desired or simply use the one space below to do all four steps of the map-making recipe. **Reminder:** When you load data via `read_csv()`, always check whether or not the join key is GEOID or called something else. You only need to pipe `read_csv()` into `rename()` if and only if the desired join key is not GEOID and is called something else. **Also:** please use another color gradient (don't use white and blue4). Please see page 3 of <https://www.nceas.ucsb.edu/sites/default/files/2020-04/colorPaletteCheatsheet.pdf> for available colors.
+
+```{r}
+# Place your code below
+
+```
+
+## Map 2: county data for a particular state
+
+You need to follow the same recipe but this time, we use `counties(year = [year], state = "[state abbreviation]")` for the shape file.
+
+Our goal for our first map is to create a county-level Virginia (VA) map for the county-level median household income using data from `va_household_income_2020.csv`
+
+This time, we need to plot `estimate`, which represents the county-level data median income for VA.
+
+**Trying new (optional) customization this time:** Let us add these new customization (a) add `labels = scales::comma` inside `scale_fill_gradient()` and (b) `+ theme(legend.position = c(0.2, 0.8))` at the bottom of the ggplot code then see what they do! Note: `theme(legend.position = c(0.2, 0.8))` shifts the legend from the lower left corner of the image by 0.20 'units' to the right (think of x-axis in Math) and 0.8 'units' higher Again, these are optional.
+
+```{r}
+# Step 1: Load shapefile 
+# Note: We can just pipe any corrections into mutate() directly
+va_shapefile <- counties(year = 2020, state = "VA") |>
+  mutate(GEOID = as.numeric(GEOID))
+
+# Step 2: Load VA county-level household income for 2020. 
+va_income_data2020 <- read_csv("data/va_household_income_2020.csv")
+
+head(va_income_data2020)
+
+# Step 3: Perform the join
+va_shapefile_with_data <- left_join(va_shapefile, va_income_data2020)
+
+# Step 4: Create the map
+ggplot(va_shapefile_with_data, aes(fill = estimate)) +
+  geom_sf() +
+  theme_void() + 
+  scale_fill_gradient(low="white", high="blue4", labels = scales::comma) +
+  labs(fill='VA Median Income') +
+  theme(legend.position = c(0.2, 0.8))
+```
+
+## Pre-practice
+
+We discussed the **Small Area Health Insurance Estimates (SAHIE) dashboard**.
+
+Download data from https://www.census.gov/data-tools/demo/sahie/#/
+
+Quickly visit the website and download **county-level data for Maryland (MD) only for 2022.**
+
+## Practice 5 (10 mins)
+
+Let us map something using real world data you'd have to clean first! **Data pre-processing before R:** After downloading the file into your computer, open the csv file in your computer and delete the first few rows until the row of variable names is the first row. Note: The uninsured rate is the column called `%` .
+
+R *hates* symbols for column names (makes it difficult to work with in R), so before saving the file, rename % into something meaning (e.g., uninsured_rate). R also *hates* white spaces in column or variable names (again, makes it difficult to work with in R), so delete white spaces from column names. For Mac users, saving your file via `File > Save` in Numbers (the default program for csv files in Mac) does not make a csv and actually creates what is called a Numbers spreadsheet, so you have to save the new csv file under `File > Export To > CSV`
+
+Use the R chunk below to create a county-level map of uninsured rates in MD only. Like always, you may add additional R chunk if desired. **Also:** please use another color gradient (don't use white and blue4). Please see page 3 of <https://www.nceas.ucsb.edu/sites/default/files/2020-04/colorPaletteCheatsheet.pdf> for available colors.
+
+```{r}
+# Place your code below
+
+```
+
+## Map 3: state data nationwide
+
+Again, this follows the prescribed recipe but with added complications. This time, we need to use `states(year = [year])`
+
+Let us create the map using what we learned so far (but notice an issue with the plot):
+
+```{r}
+# 'Bad code'
+nationwide_shapefile <- states(year = 2021) 
+
+# NOTE: You may need to change the path for this
+nationwide_income <- read_csv("data/nationwide_household_income_2021.csv") |>
+  rename(GEOID = fips_code)
+
+nationwide_shp_with_data <- left_join(nationwide_shapefile, nationwide_income)
+
+ggplot(nationwide_shp_with_data, aes(fill = estimate)) +
+  geom_sf() +
+  theme_void() + 
+  scale_fill_gradient(low="white", high="blue", labels = scales::comma) +
+  labs(fill='Household Income') 
+```
+
+When you are mapping the entire country, we typically scale then place Alaska, Hawaii, and Puerto Rico under the contiguous United States. We can do this in R by piping `state()` into `shift_geometry().` `shift_geometry()` only works for those three states/territories, but not for other territories such as Guam. Therefore, we need to remove them using `filter()`
+
+**Note:** I am introducing the ! notation inside filter() so it is filtering for the opposite thing.
+
+```{r}
+# 'Good code'
+nationwide_shapefile <- states(year = 2021) |>
+  filter(!NAME %in% c("American Samoa", "Commonwealth of the Northern Mariana Islands", "Commonwealth of the Northern Mariana Islands", "Guam", "United States Virgin Islands")) |>
+  shift_geometry()
+    
+# AGAIN!!!! You may need to change the path for this
+nationwide_income <- read_csv("data/nationwide_household_income_2021.csv") |>
+  rename(GEOID = fips_code)
+
+nationwide_shp_with_data <- left_join(nationwide_shapefile, nationwide_income)
+
+
+ggplot(nationwide_shp_with_data, aes(fill = estimate)) +
+  geom_sf() +
+  theme_void() + 
+  scale_fill_gradient(low="white", high="blue", labels = scales::comma) +
+  labs(fill='Median Household Income') 
+```
+
+## Practice 6 (10 mins)
+
+Plot data from `breast_cancer_state_mortality_2023.csv` to show the mortality rate for states across the US in 2023. The variable you is deaths_per_100000.
+
+```{r}
+# Place your code below
+
+```
+
+## Plotting categorical data instead of numerical data
+
+Suppose we want to map to indicate where states have expanded Medicaid access for their citizens as of December 2023. Let us view the data below before plotting:
+
+```{r}
+nationwide2023 <- states(year = 2023) |>
+  mutate(GEOID = as.numeric(GEOID)) |>
+  filter(!NAME %in% c("American Samoa", "Commonwealth of the Northern Mariana Islands", "Commonwealth of the Northern Mariana Islands", "Guam", "United States Virgin Islands")) |>
+  shift_geometry()
+
+# NOTE: You may need to change the path for this
+medicaid_expansion <- read_csv("data/medicaid_expansion.csv")
+head(medicaid_expansion)
+
+nationwide2023_with_data <- left_join(nationwide2023, medicaid_expansion)
+head(nationwide2023_with_data)
+```
+
+**Important note for plotting categorical data:** Do not use `scale_fill_gradient()` as we have been doing since that is for plotting numerical values. Let us plot our image before customizing our map.
+
+```{r}
+ggplot(nationwide2023_with_data, aes(fill = medicaid_expansion)) +
+  geom_sf() +
+  theme_void() + 
+  labs(fill='Median Household Income') 
+```
+
+**How do you customize color?** First determine how many unique values you have (e.g., using distinct()) and use `scale_fill_manual(values = c([your colors here))` In the case of medicaid expansion, there are only two options. In this example, let us use `scale_fill_manual(values = c("cornflowerblue", "darkslategrey"))` where we specify two colors:
+
+```{r}
+ggplot(nationwide2023_with_data,
+       aes(fill = medicaid_expansion)) +
+  geom_sf() +
+  theme_void() + 
+  scale_fill_manual(values = c("cornflowerblue", "darkslategrey")) +
+  labs(fill='Medicaid Expansion As of Dec 2023') 
+
+# ONE BRIEF NOTE: within labs(), I used \n.
+# \n tells R you want the rest on the next line
+```
+
+**Note:** if the lack of data for Puerto Rico is bothersome to you, feel free to add "Puerto Rico" inside `filter(!NAME %in% c([list here])).` You might have to do this often because often, national data sets exclude Puerto Rico.
+
+## Practice 7 (10 mins)
+
+Plot data from `presidential_election1964.csv` to plot which states won by Barry Goldwater vs Lyndon B. Johnson in the 1964 election. `Victor` is the variable you'd want to plot here. **Note:** the map of states hasn't really changed since 1959 when Hawaii because the 50th state. Also, `states(year = 1964)` will not work since it does not exist in the API where tigris pulls the data from, please use any year for the state map in this practice (e.g., `states(year = 2020)`)
+
+```{r}
+# Place your code below 
+
+```
+
+## Package for 'Dark Mode' images: ggdark
+
+You may use the ggdark package as demonstrated below. This works for all ggplot (not just maps).
+
+Instead of using theme_minimal() or theme_void(), you need to use dark_theme_minimal() or dark_theme_void().
+
+```{r}
+# run install.packages("ggdark") in console if not installed
+library(ggdark)
+
+ggplot(nationwide2023_with_data, aes(fill = medicaid_expansion)) +
+  geom_sf() +
+  dark_theme_minimal() + 
+  labs(fill='Median Household\nIncome') 
+```

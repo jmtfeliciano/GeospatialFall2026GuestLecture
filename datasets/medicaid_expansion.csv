@@ -1,0 +1,52 @@
+GEOID,StateName,medicaid_expansion
+1,Alabama,Not Adopted
+2,Alaska,Adopted
+4,Arizona,Adopted
+5,Arkansas,Adopted
+6,California,Adopted
+8,Colorado,Adopted
+9,Connecticut,Adopted
+10,Delaware,Adopted
+11,District of Columbia,Adopted
+12,Florida,Not Adopted
+13,Georgia,Not Adopted
+15,Hawaii,Adopted
+16,Idaho,Adopted
+17,Illinois,Adopted
+18,Indiana,Adopted
+19,Iowa,Adopted
+20,Kansas,Not Adopted
+21,Kentucky,Adopted
+22,Louisiana,Adopted
+23,Maine,Adopted
+24,Maryland,Adopted
+25,Massachusetts,Adopted
+26,Michigan,Adopted
+27,Minnesota,Adopted
+28,Mississippi,Not Adopted
+29,Missouri,Adopted
+30,Montana,Adopted
+31,Nebraska,Adopted
+32,Nevada,Adopted
+33,New Hampshire,Adopted
+34,New Jersey,Adopted
+35,New Mexico,Adopted
+36,New York,Adopted
+37,North Carolina,Adopted
+38,North Dakota,Adopted
+39,Ohio,Adopted
+40,Oklahoma,Adopted
+41,Oregon,Adopted
+42,Pennsylvania,Adopted
+44,Rhode Island,Adopted
+45,South Carolina,Not Adopted
+46,South Dakota,Adopted
+47,Tennessee,Not Adopted
+48,Texas,Not Adopted
+49,Utah,Adopted
+50,Vermont,Adopted
+51,Virginia,Adopted
+53,Washington,Adopted
+54,West Virginia,Adopted
+55,Wisconsin,Not Adopted
+56,Wyoming,Not Adopted
